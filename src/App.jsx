@@ -296,10 +296,13 @@ const ServicePackages = () => {
   const comp = useRef();
   useLayoutEffect(() => {
     let ctx = gsap.context(() => {
-      gsap.from(".pkg-card", {
-        scrollTrigger: { trigger: comp.current, start: "top 80%" },
-        y: 40, opacity: 0, duration: 0.8, stagger: 0.15, ease: "power2.out"
-      });
+      gsap.fromTo(".pkg-card", 
+        { y: 50, opacity: 0 },
+        {
+          scrollTrigger: { trigger: comp.current, start: "top 80%" },
+          y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: "power3.out"
+        }
+      );
     }, comp);
     return () => ctx.revert();
   }, []);
@@ -310,61 +313,61 @@ const ServicePackages = () => {
       price: '$1,500', 
       badge: null, 
       highlight: false, 
-      description: 'Ideal para novas empresas construindo sua identidade visual básica.', 
-      list: ['Retratos de Liderança (Até 3)', 'Fotos de Ambiente (Escritório)', 'Sessão de Meio Período', 'Licença de Uso Padrão'] 
+      description: 'Ideal for new companies building their foundational visual identity.', 
+      list: ['Leadership Portraits (Up to 3)', 'Environment/Office Shots', 'Half-Day Session', 'Standard Usage License'] 
     },
     { 
       title: 'CORPORATE PRO', 
       price: '$3,800', 
-      badge: 'MAIS POPULAR', 
+      badge: 'MOST POPULAR', 
       highlight: true, 
-      description: 'Cobertura completa para empresas estabelecidas atualizando sua marca.', 
-      list: ['Retratos de Equipe (Até 20)', 'Fotos de Arquitetura & Lifestyle', 'Sessão de Dia Inteiro', 'Edição Prioritária', 'Licença Comercial Completa'] 
+      description: 'Comprehensive coverage for established companies updating their brand.', 
+      list: ['Team Portraits (Up to 20)', 'Architecture & Lifestyle Shots', 'Full-Day Session', 'Priority Retouching', 'Full Commercial License'] 
     },
     { 
       title: 'ENTERPRISE RETAINER', 
-      price: 'SOB CONSULTA', 
+      price: 'CUSTOM', 
       badge: null, 
       highlight: false, 
-      description: 'Parceria contínua para grandes volumes de conteúdo visual corporativo.', 
-      list: ['Sessões Mensais ou Trimestrais', 'Direção de Arte Dedicada', 'Cobertura de Eventos Inclusa', 'Entrega Expressa', 'Direitos Totais de Uso'] 
+      description: 'Ongoing partnership for high volumes of corporate visual content.', 
+      list: ['Monthly or Quarterly Sessions', 'Dedicated Art Direction', 'Event Coverage Included', 'Express Delivery', 'Full Buyout Rights'] 
     }
   ];
 
   return (
-    <section ref={comp} className="bg-[#050505] py-20 md:py-32 border-b border-glass-border">
-      <div className="px-6 md:px-16 mb-20 max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-8">
+    <section ref={comp} className="bg-[#050505] pt-12 pb-20 md:pt-16 md:pb-32 border-b border-glass-border">
+      <div className="px-6 md:px-16 mb-12 md:mb-16 max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
-          <span className="font-mono text-[10px] text-gold tracking-[0.3em] mb-4 block uppercase">PACOTES</span>
+          <span className="font-mono text-[10px] text-gold tracking-[0.3em] mb-4 block uppercase">PACKAGES</span>
           <h2 className="font-sans font-black text-[40px] md:text-[64px] text-off-white leading-[0.95] tracking-tighter">
-            <span className="block">Soluções Completas.</span>
+            <span className="block">Complete Solutions.</span>
           </h2>
         </div>
         <p className="font-sans font-light text-[15px] md:text-[18px] text-light-gray max-w-[400px] leading-relaxed">
-          Pacotes desenhados estrategicamente para atender aos diferentes estágios da sua empresa, unindo nossos serviços essenciais numa oferta de alta performance.
+          Strategically designed packages to meet different stages of your company, combining our essential services into a high-performance offer.
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 px-6 md:px-16 max-w-7xl mx-auto">
         {packages.map((pkg, i) => (
-          <div key={i} className={`pkg-card bg-near-black rounded-[2px] p-8 md:p-10 flex flex-col relative group transition-all duration-500 overflow-hidden ${pkg.highlight ? 'border border-gold shadow-[0_0_30px_rgba(212,175,55,0.05)]' : 'border border-glass-border hover:border-gold/50'}`}>
-            <div className="absolute inset-0 bg-gradient-to-br from-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <div key={i} className={`pkg-card bg-glass-dark backdrop-blur-md rounded-[2px] p-8 md:p-10 flex flex-col relative group transition-all duration-500 overflow-hidden ${pkg.highlight ? 'border border-gold shadow-[0_0_30px_rgba(212,175,55,0.05)]' : 'border border-glass-border hover:border-gold/50'}`}>
+            <div className="absolute inset-0 bg-gradient-to-br from-gold/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             
             {pkg.badge && <div className="absolute top-0 right-0 m-6 bg-gold text-near-black font-sans font-bold text-[9px] tracking-[0.2em] px-3 py-1.5 rounded-[2px] uppercase">{pkg.badge}</div>}
             
-            <h3 className="font-mono text-[11px] text-gold tracking-[0.2em] mb-4 uppercase mt-2">{pkg.title}</h3>
-            <div className="font-sans font-black text-[36px] text-off-white mb-4 tracking-tighter">{pkg.price}</div>
-            <p className="font-sans font-light text-[14px] leading-relaxed text-warm-gray mb-8">{pkg.description}</p>
-            <hr className="border-t border-glass-border mb-8" />
+            <h3 className="font-mono text-[11px] text-gold tracking-[0.2em] mb-4 uppercase mt-2 opacity-90 group-hover:opacity-100 transition-opacity">{pkg.title}</h3>
+            <div className="font-sans font-black text-[36px] md:text-[40px] text-off-white mb-4 tracking-tighter">{pkg.price}</div>
+            <p className="font-sans font-light text-[14px] leading-relaxed text-warm-gray group-hover:text-light-gray transition-colors mb-8">{pkg.description}</p>
+            <hr className="border-t border-glass-border mb-8 opacity-60" />
             <ul className="mb-10 flex-grow relative z-10 flex flex-col gap-4">
               {pkg.list.map((item, idx) => (
-                <li key={idx} className="font-sans font-light text-[14px] text-light-gray flex items-start">
-                  <span className="text-gold mr-3 mt-1 opacity-70 text-[10px]">✓</span> {item}
+                <li key={idx} className="font-sans font-light text-[14px] text-light-gray flex items-start group-hover:text-off-white transition-colors">
+                  <span className="text-gold mr-3 mt-1 opacity-80 text-[10px]">♦</span> {item}
                 </li>
               ))}
             </ul>
-            <a href="#quote" className={`relative z-10 text-center font-sans font-semibold text-[11px] tracking-[0.15em] py-5 rounded-[2px] transition-all duration-300 ${pkg.highlight ? 'bg-gold text-near-black hover:bg-off-white' : 'border border-glass-border text-off-white hover:border-gold hover:text-gold bg-near-black/50'}`}>
-              SELECIONAR
+            <a href="#quote" className={`relative z-10 text-center font-sans font-semibold text-[11px] tracking-[0.15em] py-5 rounded-[2px] transition-all duration-300 ${pkg.highlight ? 'bg-gold text-near-black hover:bg-off-white' : 'border border-glass-border text-off-white hover:border-gold hover:text-gold bg-near-black/50 group-hover:bg-near-black/80'}`}>
+              REQUEST PACKAGE
             </a>
           </div>
         ))}
@@ -377,24 +380,27 @@ const Services = () => {
   const comp = useRef();
   useLayoutEffect(() => {
     let ctx = gsap.context(() => {
-      gsap.from(".service-card", {
-        scrollTrigger: { trigger: comp.current, start: "top 80%" },
-        y: 40, opacity: 0, duration: 0.8, stagger: 0.15, ease: "power2.out"
-      });
+      gsap.fromTo(".service-card", 
+        { y: 50, opacity: 0 },
+        {
+          scrollTrigger: { trigger: comp.current, start: "top 80%" },
+          y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: "power3.out"
+        }
+      );
     }, comp);
     return () => ctx.revert();
   }, []);
 
   const services = [
-    { title: 'EXECUTIVE PORTRAITS', icon: User, price: '$750', badge: null, highlight: false, description: 'Headshots premiums e retratos de liderança esculturais planejados para construir autoridade imediata. Ideais para alta gerência, founders e uso em conselhos.', list: ['Half-Day Studio Session', 'Individual & Group Headshots', '40 Retouched Images', 'LinkedIn-Ready Exports', 'Commercial License Included'] },
-    { title: 'PRODUCT & BRAND', icon: Package, price: '$1,100', badge: null, highlight: false, description: 'Eleve o valor percebido dos seus produtos. Produzimos imagens e campanhas visuais que combinam iluminação sofisticada com a essência da sua marca.', list: ['Full Studio Day', 'Up to 20 Product SKUs', '80 Retouched Images', 'E-Commerce & Print Ready', 'Full Commercial Rights'] },
-    { title: 'ARCHITECTURE & REAL ESTATE', icon: Building2, price: '$1,800', badge: 'HIGH DEMAND', highlight: true, description: 'Capturas grandiosas que valorizam o volume e o design estrutural do seu imóvel ou sede corporativa. Focadas no mercado de luxo e investimentos.', list: ['Exterior + Interior Coverage', 'Twilight & Daylight Shots', '60 Retouched Images', 'Virtual Tour Ready Exports', 'MLS & Print License'] },
-    { title: 'EVENTS & CONFERENCES', icon: CalendarDays, price: '$2,400', badge: null, highlight: false, description: 'Cobertura impecável dos seus maiores eventos de networking. Capturamos momentos não posados com qualidade de estúdio, garantindo material para marketing anual.', list: ['Full Day Event Coverage', 'Two-Photographer Team', '200+ Retouched Images', 'Same-Week Delivery', 'Full Commercial License'] }
+    { title: 'EXECUTIVE PORTRAITS', icon: User, price: '$750', badge: null, highlight: false, description: 'Premium headshots and sculptural leadership portraits designed to build immediate authority. Ideal for senior management, founders, and board usage.', list: ['Half-Day Studio Session', 'Individual & Group Headshots', '40 Retouched Images', 'LinkedIn-Ready Exports', 'Commercial License Included'] },
+    { title: 'PRODUCT & BRAND', icon: Package, price: '$1,100', badge: null, highlight: false, description: 'Elevate the perceived value of your products. We produce images and visual campaigns that combine sophisticated lighting with your brand\'s essence.', list: ['Full Studio Day', 'Up to 20 Product SKUs', '80 Retouched Images', 'E-Commerce & Print Ready', 'Full Commercial Rights'] },
+    { title: 'ARCHITECTURE & REAL ESTATE', icon: Building2, price: '$1,800', badge: 'HIGH DEMAND', highlight: true, description: 'Grand captures that highlight the volume and structural design of your property or corporate headquarters. Focused on the luxury and investment market.', list: ['Exterior + Interior Coverage', 'Twilight & Daylight Shots', '60 Retouched Images', 'Virtual Tour Ready Exports', 'MLS & Print License'] },
+    { title: 'EVENTS & CONFERENCES', icon: CalendarDays, price: '$2,400', badge: null, highlight: false, description: 'Impeccable coverage of your major networking events. We capture unposed moments with studio quality, ensuring material for your annual marketing.', list: ['Full Day Event Coverage', 'Two-Photographer Team', '200+ Retouched Images', 'Same-Week Delivery', 'Full Commercial License'] }
   ];
 
   return (
-    <section id="services" ref={comp} className="bg-near-black border-t border-glass-border py-20 md:py-32">
-      <div className="px-6 md:px-16 mb-20 max-w-7xl mx-auto">
+    <section id="services" ref={comp} className="bg-near-black border-t border-glass-border pt-20 pb-16 md:pt-32 md:pb-20">
+      <div className="px-6 md:px-16 mb-12 md:mb-16 max-w-7xl mx-auto">
         <span className="font-mono text-[10px] text-gold tracking-[0.3em] mb-4 block uppercase">WHAT WE DO</span>
         <h2 className="font-sans font-black text-[48px] md:text-[84px] text-off-white leading-[0.95] tracking-tighter">
           <span className="block">Four services.</span>
@@ -405,23 +411,23 @@ const Services = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 px-6 md:px-16 max-w-7xl mx-auto">
         {services.map((s, i) => (
           <div key={i} className={`service-card bg-glass-dark backdrop-blur-md rounded-[2px] p-8 md:p-12 flex flex-col relative group transition-all duration-500 overflow-hidden ${s.highlight ? 'border border-gold shadow-[0_0_30px_rgba(212,175,55,0.05)]' : 'border border-glass-border hover:border-gold/50'}`}>
-            <div className="absolute inset-0 bg-gradient-to-br from-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-gold/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             
-            {s.badge && <div className="absolute top-0 right-0 m-6 bg-gold/10 border border-gold/20 px-3 py-1.5 font-mono text-[9px] text-gold tracking-[0.2em] rounded-[2px]">{s.badge}</div>}
+            {s.badge && <div className="absolute top-0 right-0 m-6 bg-gold text-near-black px-3 py-1.5 font-mono font-bold text-[9px] tracking-[0.2em] rounded-[2px] uppercase">{s.badge}</div>}
             
             <s.icon size={32} className={`mb-8 ${s.highlight ? 'text-gold' : 'text-warm-gray group-hover:text-off-white'} transition-colors duration-500`} strokeWidth={1} />
-            <h3 className="font-mono text-[10px] text-gold tracking-[0.2em] mb-3">{s.title}</h3>
-            <div className="font-sans font-bold text-[36px] text-off-white mb-4">From {s.price}</div>
+            <h3 className="font-mono text-[10px] text-gold tracking-[0.2em] mb-3 opacity-90 group-hover:opacity-100 transition-opacity">{s.title}</h3>
+            <div className="font-sans font-bold text-[36px] md:text-[40px] text-off-white mb-4 drop-shadow-lg">From {s.price}</div>
             <p className="font-sans font-light text-[14px] leading-relaxed text-warm-gray mb-8 group-hover:text-light-gray transition-colors">{s.description}</p>
-            <hr className="border-t border-glass-border mb-8" />
-            <ul className="mb-10 flex-grow relative z-10">
+            <hr className="border-t border-glass-border mb-8 opacity-60" />
+            <ul className="mb-10 flex-grow relative z-10 flex flex-col gap-4">
               {s.list.map((item, idx) => (
-                <li key={idx} className="font-sans font-light text-[14px] text-light-gray mb-4 flex items-start">
-                  <span className="text-gold mr-4 mt-1 opacity-70 text-[10px]">♦</span> {item}
+                <li key={idx} className="font-sans font-light text-[14px] text-light-gray flex items-start group-hover:text-off-white transition-colors">
+                  <span className="text-gold mr-4 mt-1 opacity-80 text-[10px]">♦</span> {item}
                 </li>
               ))}
             </ul>
-            <a href="#quote" className={`relative z-10 text-center font-sans font-semibold text-[11px] tracking-[0.15em] py-5 rounded-[2px] transition-all duration-300 ${s.highlight ? 'bg-gold text-near-black hover:bg-off-white' : 'border border-glass-border text-off-white hover:border-gold hover:text-gold bg-near-black/50'}`}>
+            <a href="#quote" className={`relative z-10 text-center font-sans font-semibold text-[11px] tracking-[0.15em] py-5 rounded-[2px] transition-all duration-300 ${s.highlight ? 'bg-gold text-near-black hover:bg-off-white' : 'border border-glass-border text-off-white hover:border-gold hover:text-gold bg-near-black/50 group-hover:bg-near-black/80'}`}>
               GET QUOTE
             </a>
           </div>
