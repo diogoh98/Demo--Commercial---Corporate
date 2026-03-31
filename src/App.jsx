@@ -1,45 +1,91 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { User, Package, Building2, CalendarDays, Menu, X } from 'lucide-react';
+import { User, Package, Building2, CalendarDays, Menu, X, ArrowRight } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
+
+const CustomCursor = () => {
+  const dot = useRef(null);
+  const outline = useRef(null);
+
+  useEffect(() => {
+    const moveCursor = (e) => {
+      if(dot.current) {
+        dot.current.style.left = e.clientX + 'px';
+        dot.current.style.top = e.clientY + 'px';
+      }
+      if(outline.current) {
+        setTimeout(() => {
+          if(outline.current) {
+            outline.current.style.left = e.clientX + 'px';
+            outline.current.style.top = e.clientY + 'px';
+          }
+        }, 50);
+      }
+    };
+
+    const handleMouseOver = (e) => {
+      const target = e.target.closest('a, button, input, textarea, select, img, .custom-cursor-target');
+      if(target) {
+        document.body.classList.add('cursor-hover');
+      } else {
+        document.body.classList.remove('cursor-hover');
+      }
+    };
+
+    window.addEventListener('mousemove', moveCursor);
+    document.addEventListener('mouseover', handleMouseOver);
+
+    return () => {
+      window.removeEventListener('mousemove', moveCursor);
+      document.removeEventListener('mouseover', handleMouseOver);
+    };
+  }, []);
+
+  return (
+    <>
+      <div ref={dot} className="custom-cursor-dot hidden md:block"></div>
+      <div ref={outline} className="custom-cursor-outline hidden md:block"></div>
+    </>
+  );
+};
 
 const Navbar = ({ mobileMenuOpen, setMobileMenuOpen }) => {
   return (
     <>
-      <nav className="fixed w-full z-50 top-0 left-0 bg-white/95 backdrop-blur-md border-b flex justify-between items-center px-6 md:px-16 py-4 transition-all duration-300">
+      <nav className="fixed w-full z-50 top-0 left-0 bg-near-black/70 backdrop-blur-md border-b border-glass-border flex justify-between items-center px-6 md:px-16 py-4 transition-all duration-300">
         <div className="flex flex-col md:flex-row md:items-baseline md:gap-3">
-          <span className="font-sans font-black text-charcoal text-[18px] uppercase tracking-tight">FRAME</span>
+          <span className="font-sans font-black text-off-white text-[18px] uppercase tracking-tight">FRAME</span>
           <span className="font-mono text-warm-gray text-[9px] tracking-[0.35em] uppercase">COLLECTIVE</span>
         </div>
         
         <div className="hidden md:flex items-center gap-10">
           <div className="flex items-center gap-8">
             {['Work', 'Services', 'About', 'Contact'].map(link => (
-              <a key={link} href={`#${link.toLowerCase()}`} className="font-sans font-normal text-[13px] text-warm-gray hover:text-charcoal tracking-[0.03em] transition-colors">{link}</a>
+              <a key={link} href={`#${link.toLowerCase()}`} className="font-sans font-normal text-[13px] text-light-gray hover:text-gold tracking-[0.03em] transition-colors">{link}</a>
             ))}
           </div>
-          <a href="#quote" className="bg-slate hover:bg-slate-mid text-white font-sans font-semibold text-[11px] tracking-[0.12em] px-[22px] py-[9px] rounded-[2px] transition-colors uppercase">
+          <a href="#quote" className="bg-gold hover:bg-slate-mid text-near-black hover:text-off-white font-sans font-semibold text-[11px] tracking-[0.12em] px-[22px] py-[9px] rounded-[2px] transition-colors uppercase">
             GET A QUOTE
           </a>
         </div>
 
-        <button className="md:hidden text-charcoal" onClick={() => setMobileMenuOpen(true)}>
+        <button className="md:hidden text-off-white" onClick={() => setMobileMenuOpen(true)}>
           <Menu size={24} strokeWidth={1.5} />
         </button>
       </nav>
 
       {/* Mobile Menu Overlay */}
-      <div className={`fixed inset-0 bg-white z-[60] flex flex-col items-center justify-center transition-opacity duration-300 ${mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-        <button className="absolute top-6 right-6 text-charcoal" onClick={() => setMobileMenuOpen(false)}>
+      <div className={`fixed inset-0 bg-near-black z-[60] flex flex-col items-center justify-center transition-opacity duration-300 ${mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+        <button className="absolute top-6 right-6 text-off-white hover:text-gold transition-colors" onClick={() => setMobileMenuOpen(false)}>
           <X size={28} strokeWidth={1} />
         </button>
         <div className="flex flex-col items-center gap-8 text-center">
           {['Work', 'Services', 'About', 'Contact'].map(link => (
-            <a key={link} href={`#${link.toLowerCase()}`} onClick={() => setMobileMenuOpen(false)} className="font-sans font-bold text-3xl text-charcoal uppercase tracking-widest">{link}</a>
+            <a key={link} href={`#${link.toLowerCase()}`} onClick={() => setMobileMenuOpen(false)} className="font-sans font-black text-4xl text-off-white hover:text-gold transition-colors uppercase tracking-widest">{link}</a>
           ))}
-          <a href="#quote" onClick={() => setMobileMenuOpen(false)} className="bg-slate text-white font-sans font-semibold text-sm tracking-[0.12em] px-8 py-4 mt-4 rounded-[2px] uppercase">
+          <a href="#quote" onClick={() => setMobileMenuOpen(false)} className="bg-gold text-near-black font-sans font-semibold text-sm tracking-[0.12em] px-8 py-4 mt-8 rounded-[2px] uppercase">
             GET A QUOTE
           </a>
         </div>
@@ -50,45 +96,58 @@ const Navbar = ({ mobileMenuOpen, setMobileMenuOpen }) => {
 
 const Hero = () => {
   const comp = useRef(null);
+  const bgRef = useRef(null);
 
   useLayoutEffect(() => {
     let ctx = gsap.context(() => {
+      // Ken Burns Effect
+      gsap.to(bgRef.current, {
+        scale: 1.15,
+        duration: 25,
+        ease: "none",
+        repeat: -1,
+        yoyo: true
+      });
+
       gsap.from(".hero-elem", {
-        y: 30, opacity: 0, duration: 0.9, stagger: 0.1, ease: "power2.out", delay: 0.2
+        y: 40, opacity: 0, duration: 1.2, stagger: 0.15, ease: "power3.out", delay: 0.3
       });
     }, comp);
     return () => ctx.revert();
   }, []);
 
   return (
-    <section ref={comp} className="h-[100dvh] w-full grid grid-cols-1 md:grid-cols-[58%_42%] pt-16 md:pt-0">
-      <div className="bg-white flex flex-col justify-center px-8 md:px-[72px] relative z-10 h-[55vh] md:h-full">
-        <div className="max-w-[600px]">
-          <span className="hero-elem font-mono text-[10px] text-slate tracking-[0.25em] block mb-6 uppercase">COMMERCIAL · CORPORATE · CHICAGO</span>
+    <section ref={comp} className="h-[100dvh] w-full relative overflow-hidden flex items-center justify-center pt-16 md:pt-0">
+      <div className="absolute inset-0 w-full h-full overflow-hidden">
+        <div ref={bgRef} className="w-full h-full origin-center">
+          <img src="/images/hero.jpg" alt="Corporate Executive Portrait" className="w-full h-full object-cover" />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-near-black via-near-black/70 to-near-black/40"></div>
+      </div>
+
+      <div className="relative z-10 px-6 md:px-[72px] w-full max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between mt-12 md:mt-0">
+        <div className="max-w-[800px] text-center md:text-left mx-auto md:mx-0">
+          <span className="hero-elem font-mono text-[10px] md:text-[12px] text-gold tracking-[0.3em] block mb-6 uppercase">COMMERCIAL · CORPORATE · CHICAGO</span>
           
-          <h1 className="hero-elem font-sans font-black text-charcoal text-[56px] md:text-[96px] leading-[0.9] tracking-tight mb-8">
+          <h1 className="hero-elem font-sans font-black text-off-white text-[64px] md:text-[120px] leading-[0.9] tracking-tighter mb-8">
             <span className="block">Imagery</span>
-            <span className="block">that means</span>
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-light-gray to-mid-gray">that means</span>
             <span className="block text-gold">business.</span>
           </h1>
 
-          <p className="hero-elem font-sans font-light text-[14px] text-warm-gray tracking-[0.05em] mb-12">
+          <p className="hero-elem font-sans font-light text-[15px] md:text-[20px] text-light-gray tracking-[0.05em] mb-12 max-w-[600px] mx-auto md:mx-0">
             Executive Portraits · Product · Architecture · Events · Brand
           </p>
 
-          <div className="hero-elem flex flex-wrap items-center gap-4 mb-8">
-            <a href="#quote" className="bg-slate hover:bg-slate-mid text-white font-sans font-semibold text-[12px] tracking-[0.1em] px-6 py-3 rounded-[2px] transition-colors">GET A QUOTE</a>
-            <a href="#work" className="border hover:border-slate text-charcoal font-sans font-normal text-[12px] px-6 py-3 rounded-[2px] transition-colors">VIEW OUR WORK</a>
+          <div className="hero-elem flex flex-wrap items-center justify-center md:justify-start gap-6 mb-12">
+            <a href="#quote" className="bg-gold hover:bg-slate-mid text-near-black hover:text-off-white font-sans font-semibold text-[13px] tracking-[0.15em] px-10 py-5 rounded-[2px] transition-all duration-300">GET A QUOTE</a>
+            <a href="#work" className="border border-glass-border hover:border-gold text-off-white font-sans font-light text-[13px] tracking-[0.15em] px-10 py-5 rounded-[2px] transition-all duration-300 bg-glass-dark backdrop-blur-sm">VIEW OUR WORK</a>
           </div>
 
-          <div className="hero-elem font-mono text-[10px] text-warm-gray tracking-[0.1em] mt-auto md:absolute md:bottom-12">
-            4.9 <span className="text-gold">★</span> Google · 241 Reviews · Licensed & Insured · Available Nationwide
+          <div className="hero-elem font-mono text-[10px] text-warm-gray tracking-[0.15em]">
+            <span className="text-gold">4.9 ★</span> Google · 241 Reviews · Licensed & Insured
           </div>
         </div>
-      </div>
-      
-      <div className="h-[45vh] md:h-full relative overflow-hidden bg-light-gray">
-        <img src="/images/hero.jpg" alt="Corporate Executive Portrait" className="w-full h-full object-cover" />
       </div>
     </section>
   );
@@ -100,23 +159,23 @@ const ClientLogos = () => {
     let ctx = gsap.context(() => {
       gsap.from(".logo-anim", {
         scrollTrigger: { trigger: comp.current, start: "top 85%" },
-        y: 20, opacity: 0, duration: 0.6, stagger: 0.08, ease: "power2.out"
+        y: 20, opacity: 0, duration: 0.8, stagger: 0.1, ease: "power2.out"
       });
     }, comp);
     return () => ctx.revert();
   }, []);
 
   return (
-    <section ref={comp} className="bg-off-white border-y py-10 px-6 md:px-16 overflow-hidden">
-      <div className="logo-anim text-center font-mono text-[10px] text-warm-gray tracking-[0.25em] mb-10">TRUSTED BY LEADING BRANDS</div>
-      <div className="flex flex-wrap justify-center md:justify-between items-center gap-8 md:gap-4 mb-8 max-w-7xl mx-auto">
+    <section ref={comp} className="bg-near-black border-y border-glass-border py-12 px-6 md:px-16 overflow-hidden">
+      <div className="logo-anim text-center font-mono text-[10px] text-warm-gray tracking-[0.3em] mb-12 uppercase">TRUSTED BY LEADING BRANDS</div>
+      <div className="flex flex-wrap justify-center md:justify-between items-center gap-10 md:gap-4 mb-10 max-w-7xl mx-auto opacity-70">
         {['AXIOM', 'MERIDIAN', 'LOFTWORK', 'NORTEK', 'VERIDIAN', 'PRAXIS'].map((logo, i) => (
-          <div key={logo} className={`logo-anim font-sans font-bold text-[#C8C5C0] hover:text-slate transition-colors duration-300 ${i%2===0 ? 'text-[18px] font-black' : 'text-[16px]'} tracking-tight`}>
+          <div key={logo} className={`logo-anim font-sans font-bold text-mid-gray hover:text-gold transition-colors duration-500 custom-cursor-target ${i%2===0 ? 'text-[20px] font-black' : 'text-[18px]'} tracking-widest`}>
             {logo}
           </div>
         ))}
       </div>
-      <div className="logo-anim text-center font-mono text-[10px] text-warm-gray">+ 80 more companies across finance, tech, law and healthcare</div>
+      <div className="logo-anim text-center font-mono text-[10px] text-mid-gray">+ 80 more companies across finance, tech, law and healthcare</div>
     </section>
   );
 };
@@ -127,26 +186,27 @@ const StatsBar = () => {
     let ctx = gsap.context(() => {
       gsap.from(".stat-box", {
         scrollTrigger: { trigger: comp.current, start: "top 80%" },
-        y: 30, opacity: 0, duration: 0.8, stagger: 0.1, ease: "power2.out"
+        scale: 0.9, opacity: 0, duration: 1, stagger: 0.15, ease: "power3.out"
       });
     }, comp);
     return () => ctx.revert();
   }, []);
 
   const stats = [
-    { num: '500+', label: 'PROJECTS DELIVERED', color: 'text-white' },
-    { num: '86', label: 'Fortune 500 CLIENTS', color: 'text-white' },
-    { num: '15', label: 'YEARS EXPERIENCE', color: 'text-white' },
+    { num: '500+', label: 'PROJECTS DELIVERED', color: 'text-off-white' },
+    { num: '86', label: 'Fortune 500 CLIENTS', color: 'text-off-white' },
+    { num: '15', label: 'YEARS EXPERIENCE', color: 'text-off-white' },
     { num: '4.9 ★', label: 'GOOGLE RATING', color: 'text-gold' }
   ];
 
   return (
-    <section ref={comp} className="bg-slate py-12 md:py-8 px-6">
-      <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-y-10 md:gap-0 divide-x-0 md:divide-x divide-white/15">
+    <section ref={comp} className="bg-near-black relative py-16 md:py-20 px-6 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-b from-near-black to-[#0a0a0a]"></div>
+      <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-y-16 md:gap-0 divide-x-0 md:divide-x divide-glass-border relative z-10">
         {stats.map((s, i) => (
-          <div key={i} className="stat-box flex flex-col items-center text-center px-4">
-            <div className={`font-sans font-black text-[36px] md:text-[48px] leading-tight ${s.color}`}>{s.num}</div>
-            <div className="font-mono text-[9px] text-white/60 tracking-[0.2em] uppercase mt-1">{s.label}</div>
+          <div key={i} className="stat-box flex flex-col items-center text-center px-4 custom-cursor-target">
+            <div className={`font-sans font-black text-[42px] md:text-[56px] leading-tight tracking-tighter ${s.color}`}>{s.num}</div>
+            <div className="font-mono text-[10px] text-warm-gray tracking-[0.25em] uppercase mt-2">{s.label}</div>
           </div>
         ))}
       </div>
@@ -166,67 +226,121 @@ const PortfolioGrid = () => {
     { id: 8, cat: 'BRAND', span: 'col-span-12 md:col-span-4' },
   ];
 
+  const comp = useRef();
+  useLayoutEffect(() => {
+    let ctx = gsap.context(() => {
+      gsap.utils.toArray('.grid-item').forEach(item => {
+        const img = item.querySelector('img');
+        gsap.to(img, {
+          yPercent: 10,
+          ease: "none",
+          scrollTrigger: {
+            trigger: item,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: true
+          }
+        });
+        
+        gsap.from(item, {
+          scrollTrigger: {
+             trigger: item,
+             start: "top 90%",
+          },
+          y: 50,
+          opacity: 0,
+          duration: 1,
+          ease: "power3.out"
+        });
+      });
+    }, comp);
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section id="work" className="bg-white border-t px-1 md:px-0 py-16 md:py-24">
-      <div className="px-5 md:px-16 mb-12 max-w-7xl mx-auto">
-        <span className="font-mono text-[10px] text-slate tracking-[0.25em] mb-4 block">SELECTED WORK</span>
-        <h2 className="font-sans font-black text-[42px] md:text-[72px] text-charcoal leading-[0.95] tracking-tight">
+    <section id="work" ref={comp} className="bg-[#050505] border-t border-glass-border px-1 md:px-0 py-24 md:py-32">
+      <div className="px-5 md:px-16 mb-16 max-w-7xl mx-auto">
+        <span className="font-mono text-[10px] text-gold tracking-[0.3em] mb-4 block uppercase">SELECTED WORK</span>
+        <h2 className="font-sans font-black text-[48px] md:text-[84px] text-off-white leading-[0.95] tracking-tighter">
           <span className="block">Eight projects.</span>
-          <span className="block">Zero compromise.</span>
+          <span className="block text-light-gray">Zero compromise.</span>
         </h2>
       </div>
 
-      <div className="grid grid-cols-12 gap-[2px] px-1 md:px-[2px]">
+      <div className="grid grid-cols-12 gap-[4px] px-1 md:px-[4px]">
         {images.map((img) => (
-          <div key={img.id} className={`${img.span} relative group overflow-hidden aspect-square md:aspect-auto ${img.id>3 ? 'md:h-[50vh]' : 'md:h-[45vh]'}`}>
-            <img src={`/images/grid-${img.id}.jpg`} alt={img.cat} className="w-full h-full object-cover transition-transform duration-[450ms] ease-out group-hover:scale-[1.03]" loading="lazy" />
-            <div className="absolute inset-0 bg-slate/0 group-hover:bg-slate/10 transition-colors duration-[450ms]"></div>
-            <div className="absolute bottom-4 left-4 font-mono text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 uppercase">{img.cat}</div>
+          <div key={img.id} className={`grid-item ${img.span} relative group overflow-hidden aspect-square md:aspect-auto ${img.id>3 ? 'md:h-[60vh]' : 'md:h-[50vh]'} custom-cursor-target`}>
+            {/* Parallax Image Wrapper */}
+            <div className="w-full h-[120%] -top-[10%] relative">
+              <img src={`/images/grid-${img.id}.jpg`} alt={img.cat} className="w-full h-full object-cover transition-transform duration-[700ms] ease-out group-hover:scale-[1.05] brightness-75 group-hover:brightness-100" loading="lazy" />
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-near-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="absolute bottom-6 left-6 flex items-center gap-3 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+              <div className="w-8 h-[1px] bg-gold"></div>
+              <div className="font-mono text-[11px] text-gold tracking-widest uppercase">{img.cat}</div>
+            </div>
           </div>
         ))}
       </div>
 
-      <div className="text-center mt-12">
-        <a href="#contact" className="font-mono text-[10px] text-slate hover:text-charcoal tracking-[0.15em] transition-colors">REQUEST FULL PORTFOLIO →</a>
+      <div className="text-center mt-20">
+        <a href="#contact" className="inline-flex items-center gap-3 font-mono text-[11px] text-gold hover:text-off-white tracking-[0.2em] transition-colors border-b border-gold/30 pb-2 hover:border-off-white pb-3 custom-cursor-target">
+          REQUEST FULL PORTFOLIO <ArrowRight size={14} />
+        </a>
       </div>
     </section>
   );
 };
 
 const Services = () => {
+  const comp = useRef();
+  useLayoutEffect(() => {
+    let ctx = gsap.context(() => {
+      gsap.from(".service-card", {
+        scrollTrigger: { trigger: comp.current, start: "top 80%" },
+        y: 40, opacity: 0, duration: 0.8, stagger: 0.15, ease: "power2.out"
+      });
+    }, comp);
+    return () => ctx.revert();
+  }, []);
+
   const services = [
-    { title: 'EXECUTIVE PORTRAITS', icon: User, price: '$750', badge: null, highlight: false, list: ['Half-Day Studio Session', 'Individual & Group Headshots', '40 Retouched Images', 'LinkedIn-Ready Exports', 'Commercial License Included'] },
-    { title: 'PRODUCT & BRAND', icon: Package, price: '$1,100', badge: null, highlight: false, list: ['Full Studio Day', 'Up to 20 Product SKUs', '80 Retouched Images', 'E-Commerce & Print Ready', 'Full Commercial Rights'] },
-    { title: 'ARCHITECTURE & REAL ESTATE', icon: Building2, price: '$1,800', badge: 'HIGH DEMAND', highlight: true, list: ['Exterior + Interior Coverage', 'Twilight & Daylight Shots', '60 Retouched Images', 'Virtual Tour Ready Exports', 'MLS & Print License'] },
-    { title: 'EVENTS & CONFERENCES', icon: CalendarDays, price: '$2,400', badge: null, highlight: false, list: ['Full Day Event Coverage', 'Two-Photographer Team', '200+ Retouched Images', 'Same-Week Delivery', 'Full Commercial License'] }
+    { title: 'EXECUTIVE PORTRAITS', icon: User, price: '$750', badge: null, highlight: false, description: 'Headshots premiums e retratos de liderança esculturais planejados para construir autoridade imediata. Ideais para alta gerência, founders e uso em conselhos.', list: ['Half-Day Studio Session', 'Individual & Group Headshots', '40 Retouched Images', 'LinkedIn-Ready Exports', 'Commercial License Included'] },
+    { title: 'PRODUCT & BRAND', icon: Package, price: '$1,100', badge: null, highlight: false, description: 'Eleve o valor percebido dos seus produtos. Produzimos imagens e campanhas visuais que combinam iluminação sofisticada com a essência da sua marca.', list: ['Full Studio Day', 'Up to 20 Product SKUs', '80 Retouched Images', 'E-Commerce & Print Ready', 'Full Commercial Rights'] },
+    { title: 'ARCHITECTURE & REAL ESTATE', icon: Building2, price: '$1,800', badge: 'HIGH DEMAND', highlight: true, description: 'Capturas grandiosas que valorizam o volume e o design estrutural do seu imóvel ou sede corporativa. Focadas no mercado de luxo e investimentos.', list: ['Exterior + Interior Coverage', 'Twilight & Daylight Shots', '60 Retouched Images', 'Virtual Tour Ready Exports', 'MLS & Print License'] },
+    { title: 'EVENTS & CONFERENCES', icon: CalendarDays, price: '$2,400', badge: null, highlight: false, description: 'Cobertura impecável dos seus maiores eventos de networking. Capturamos momentos não posados com qualidade de estúdio, garantindo material para marketing anual.', list: ['Full Day Event Coverage', 'Two-Photographer Team', '200+ Retouched Images', 'Same-Week Delivery', 'Full Commercial License'] }
   ];
 
   return (
-    <section id="services" className="bg-off-white border-t py-16 md:py-24">
-      <div className="px-6 md:px-16 mb-16 max-w-7xl mx-auto">
-        <span className="font-mono text-[10px] text-slate tracking-[0.25em] mb-4 block">WHAT WE DO</span>
-        <h2 className="font-sans font-black text-[42px] md:text-[72px] text-charcoal leading-[0.95] tracking-tight">
+    <section id="services" ref={comp} className="bg-near-black border-t border-glass-border py-20 md:py-32">
+      <div className="px-6 md:px-16 mb-20 max-w-7xl mx-auto">
+        <span className="font-mono text-[10px] text-gold tracking-[0.3em] mb-4 block uppercase">WHAT WE DO</span>
+        <h2 className="font-sans font-black text-[48px] md:text-[84px] text-off-white leading-[0.95] tracking-tighter">
           <span className="block">Four services.</span>
-          <span className="block">One standard.</span>
+          <span className="block text-light-gray">One standard.</span>
         </h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-6 md:px-16 max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 px-6 md:px-16 max-w-7xl mx-auto">
         {services.map((s, i) => (
-          <div key={i} className={`bg-white rounded-[2px] p-6 md:p-8 flex flex-col relative ${s.highlight ? 'border border-slate' : 'border'}`}>
-            {s.badge && <div className="absolute top-0 right-0 m-6 bg-slate-light px-2 py-1 font-mono text-[9px] text-slate tracking-[0.2em]">{s.badge}</div>}
-            <s.icon size={28} className="text-slate mb-8" strokeWidth={1.5} />
-            <h3 className="font-mono text-[10px] text-slate tracking-[0.2em] mb-2">{s.title}</h3>
-            <div className="font-sans font-bold text-[36px] text-charcoal mb-6">From {s.price}</div>
-            <hr className="border-t border-mid-gray mb-6" />
-            <ul className="mb-8 flex-grow">
+          <div key={i} className={`service-card bg-glass-dark backdrop-blur-md rounded-[2px] p-8 md:p-12 flex flex-col relative group transition-all duration-500 overflow-hidden ${s.highlight ? 'border border-gold shadow-[0_0_30px_rgba(212,175,55,0.05)]' : 'border border-glass-border hover:border-gold/50'}`}>
+            <div className="absolute inset-0 bg-gradient-to-br from-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            
+            {s.badge && <div className="absolute top-0 right-0 m-6 bg-gold/10 border border-gold/20 px-3 py-1.5 font-mono text-[9px] text-gold tracking-[0.2em] rounded-[2px]">{s.badge}</div>}
+            
+            <s.icon size={32} className={`mb-8 ${s.highlight ? 'text-gold' : 'text-warm-gray group-hover:text-off-white'} transition-colors duration-500`} strokeWidth={1} />
+            <h3 className="font-mono text-[10px] text-gold tracking-[0.2em] mb-3">{s.title}</h3>
+            <div className="font-sans font-bold text-[36px] text-off-white mb-4">From {s.price}</div>
+            <p className="font-sans font-light text-[14px] leading-relaxed text-warm-gray mb-8 group-hover:text-light-gray transition-colors">{s.description}</p>
+            <hr className="border-t border-glass-border mb-8" />
+            <ul className="mb-10 flex-grow relative z-10">
               {s.list.map((item, idx) => (
-                <li key={idx} className="font-sans font-light text-[13px] text-warm-gray mb-3 flex items-start">
-                  <span className="text-slate mr-3 opacity-60">→</span> {item}
+                <li key={idx} className="font-sans font-light text-[14px] text-light-gray mb-4 flex items-start">
+                  <span className="text-gold mr-4 mt-1 opacity-70 text-[10px]">♦</span> {item}
                 </li>
               ))}
             </ul>
-            <a href="#quote" className={`text-center font-sans font-semibold text-[11px] tracking-[0.1em] py-4 rounded-[2px] transition-colors ${s.highlight ? 'bg-slate text-white hover:bg-slate-mid' : 'border border-mid-gray text-charcoal hover:border-slate hover:text-slate'}`}>
+            <a href="#quote" className={`relative z-10 text-center font-sans font-semibold text-[11px] tracking-[0.15em] py-5 rounded-[2px] transition-all duration-300 ${s.highlight ? 'bg-gold text-near-black hover:bg-off-white' : 'border border-glass-border text-off-white hover:border-gold hover:text-gold bg-near-black/50'}`}>
               GET QUOTE
             </a>
           </div>
@@ -242,7 +356,11 @@ const Process = () => {
     let ctx = gsap.context(() => {
       gsap.from(".proc-step", {
         scrollTrigger: { trigger: comp.current, start: "top 75%" },
-        y: 20, opacity: 0, duration: 0.6, stagger: 0.15, ease: "power2.out"
+        y: 30, opacity: 0, duration: 0.8, stagger: 0.2, ease: "power2.out"
+      });
+      gsap.from(".proc-line", {
+        scrollTrigger: { trigger: comp.current, start: "top 75%" },
+        scaleX: 0, transformOrigin: "left center", duration: 1.5, ease: "power3.inOut"
       });
     }, comp);
     return () => ctx.revert();
@@ -256,19 +374,22 @@ const Process = () => {
   ];
 
   return (
-    <section ref={comp} className="bg-white border-t py-16 md:py-32 px-6 md:px-16 overflow-hidden">
+    <section ref={comp} className="bg-[#050505] border-t border-glass-border py-24 md:py-40 px-6 md:px-16 overflow-hidden">
       <div className="max-w-7xl mx-auto">
-        <span className="font-mono text-[10px] text-slate tracking-[0.25em] mb-4 block">HOW IT WORKS</span>
-        <h2 className="font-sans font-black text-[42px] md:text-[72px] text-charcoal leading-[1] tracking-tight mb-20 md:mb-32">
+        <span className="font-mono text-[10px] text-gold tracking-[0.3em] mb-4 block uppercase">HOW IT WORKS</span>
+        <h2 className="font-sans font-black text-[48px] md:text-[84px] text-off-white leading-[1] tracking-tighter mb-24 md:mb-40">
           Simple. Precise. Fast.
         </h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8 relative">
-          <div className="hidden md:block absolute top-[10px] left-0 w-full h-[1px] bg-mid-gray -z-10"></div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-16 md:gap-8 relative">
+          <div className="proc-line hidden md:block absolute top-[18px] left-0 w-full h-[1px] bg-glass-border"></div>
           {steps.map((s, i) => (
-            <div key={i} className="proc-step bg-white md:pt-8 md:pr-4 relative">
-              <div className="font-mono text-[10px] text-gold mb-4 md:-mt-[42px] bg-white inline-block md:pr-2">{s.n} → {s.t}</div>
-              <p className="font-sans font-light text-[13px] text-warm-gray leading-relaxed max-w-[240px]">{s.d}</p>
+            <div key={i} className="proc-step md:pt-10 md:pr-4 relative custom-cursor-target">
+              <div className="font-mono text-[12px] text-gold mb-6 md:-mt-[58px] bg-[#050505] inline-flex items-center gap-3 pr-4">
+                 <span className="w-8 h-8 rounded-full border border-gold flex items-center justify-center text-[10px]">{s.n}</span>
+                 {s.t}
+              </div>
+              <p className="font-sans font-light text-[15px] text-light-gray leading-relaxed md:max-w-[240px]">{s.d}</p>
             </div>
           ))}
         </div>
@@ -281,51 +402,54 @@ const AboutDiane = () => {
   const comp = useRef();
   useLayoutEffect(() => {
     let ctx = gsap.context(() => {
-      gsap.from(".about-img", {
+      gsap.from(".about-img-box", {
         scrollTrigger: { trigger: comp.current, start: "top 75%" },
-        x: -40, opacity: 0, duration: 0.8, ease: "power2.out"
+        y: 50, opacity: 0, duration: 1, ease: "power3.out"
       });
       gsap.from(".about-text", {
         scrollTrigger: { trigger: comp.current, start: "top 75%" },
-        x: 40, opacity: 0, duration: 0.8, ease: "power2.out"
+        x: 40, opacity: 0, duration: 1, ease: "power3.out"
       });
     }, comp);
     return () => ctx.revert();
   }, []);
 
   return (
-    <section id="about" ref={comp} className="bg-off-white border-t grid grid-cols-1 md:grid-cols-[45%_55%]">
-      <div className="about-img relative h-[50vh] md:h-auto border-r border-slate/15">
-        <img src="/images/diane.jpg" alt="Diane Mercer - Photographer" className="w-full h-full object-cover" loading="lazy" />
-        <div className="absolute bottom-6 left-6 bg-white border p-4 shadow-sm">
-          <div className="font-sans font-semibold text-[14px] text-charcoal">Diane Mercer</div>
-          <div className="font-mono text-[10px] text-slate mb-1">Chicago, IL</div>
-          <div className="font-sans font-light text-[12px] text-warm-gray">15 Years · 500+ Projects</div>
+    <section id="about" ref={comp} className="bg-near-black border-t border-glass-border grid grid-cols-1 lg:grid-cols-[45%_55%]">
+      <div className="about-img-box relative h-[60vh] lg:h-auto border-r border-glass-border overflow-hidden group">
+        <img src="/images/diane.jpg" alt="Diane Mercer - Photographer" className="w-full h-full object-cover transition-transform duration-[1s] group-hover:scale-105 brightness-90 grayscale-[20%]" loading="lazy" />
+        <div className="absolute inset-0 bg-gradient-to-t from-near-black via-transparent to-transparent"></div>
+        <div className="absolute bottom-8 left-8 right-8 bg-glass-dark backdrop-blur-md border border-glass-border p-6 shadow-2xl">
+          <div className="font-sans font-semibold text-[16px] text-off-white mb-1">Diane Mercer</div>
+          <div className="font-mono text-[10px] text-gold tracking-widest uppercase mb-3">Chicago, IL</div>
+          <div className="flex items-center gap-4 border-t border-glass-border pt-3">
+             <div className="font-sans font-light text-[12px] text-light-gray">15 Years Exp</div>
+             <div className="w-1 h-1 rounded-full bg-mid-gray"></div>
+             <div className="font-sans font-light text-[12px] text-light-gray">500+ Projects</div>
+          </div>
         </div>
       </div>
       
-      <div className="about-text p-8 md:p-[72px_64px] flex flex-col justify-center">
-        <span className="font-mono text-[10px] text-slate tracking-[0.2em] mb-6 block">DIANE MERCER · LEAD PHOTOGRAPHER</span>
-        <h2 className="font-sans font-bold text-[28px] md:text-[38px] text-charcoal leading-[1.2] tracking-tight mb-8">
+      <div className="about-text p-8 md:p-16 lg:p-[100px_80px] flex flex-col justify-center bg-[#0a0a0a]">
+        <span className="font-mono text-[10px] text-gold tracking-[0.3em] mb-8 block uppercase">DIANE MERCER · LEAD PHOTOGRAPHER</span>
+        <h2 className="font-sans font-bold text-[32px] md:text-[46px] text-off-white leading-[1.15] tracking-tight mb-10">
           "Corporate photography is not about making things look good. It's about making them work."
         </h2>
         
-        <div className="w-[48px] h-[1px] bg-gold mb-8"></div>
+        <div className="w-[60px] h-[2px] bg-gold mb-10"></div>
         
-        <p className="font-sans font-light text-[15px] text-warm-gray leading-[2.0] mb-10">
+        <p className="font-sans font-light text-[16px] md:text-[18px] text-light-gray leading-[1.9] mb-12">
           With 15 years shooting for Fortune 500 companies, startups, law firms and global brands, I understand what corporate imagery needs to do — communicate authority, build trust and convert. I don't just show up with a camera. I come with a creative brief, a production schedule and a delivery guarantee. My clients don't just get great photos. They get a seamless professional experience from first call to final file.
         </p>
         
-        <div className="flex flex-wrap items-center gap-3 mb-10">
-          <span className="font-mono text-[10px] text-slate">APA Member</span>
-          <span className="text-gold text-[10px]">•</span>
-          <span className="font-mono text-[10px] text-slate">ASMP Certified</span>
-          <span className="text-gold text-[10px]">•</span>
-          <span className="font-mono text-[10px] text-slate">15 Yrs Exp.</span>
+        <div className="flex flex-wrap items-center gap-4 mb-12 border border-glass-border p-4 w-fit bg-near-black">
+          <span className="font-mono text-[10px] text-off-white tracking-widest uppercase">APA Member</span>
+          <span className="text-gold text-[10px]">♦</span>
+          <span className="font-mono text-[10px] text-off-white tracking-widest uppercase">ASMP Certified</span>
         </div>
         
-        <a href="#" className="font-mono text-[10px] text-slate hover:text-charcoal tracking-widest uppercase transition-colors self-start">
-          DOWNLOAD CAPABILITIES DECK →
+        <a href="#" className="font-mono text-[11px] text-gold hover:text-off-white tracking-[0.2em] uppercase transition-colors self-start border-b border-gold/30 hover:border-off-white pb-2 flex items-center gap-2 custom-cursor-target">
+          DOWNLOAD CAPABILITIES DECK <ArrowRight size={14}/>
         </a>
       </div>
     </section>
@@ -353,35 +477,35 @@ const Testimonials = () => {
   useEffect(() => {
     const int = setInterval(() => {
       setActive(a => (a + 1) % reviews.length);
-    }, 5500);
+    }, 6000);
     return () => clearInterval(int);
   }, []);
 
   return (
-    <section className="bg-white border-t py-16 md:py-24 px-6 md:px-16">
-      <div className="max-w-7xl mx-auto">
-        <span className="font-mono text-[10px] text-slate tracking-[0.25em] mb-4 block">CLIENT RESULTS</span>
-        <h2 className="font-sans font-black text-[42px] md:text-[72px] text-charcoal leading-[0.95] tracking-tight mb-16">
-          <span className="block">The numbers</span>
-          <span className="block">speak first.</span>
+    <section className="bg-[url('/images/hero.jpg')] bg-cover bg-center bg-fixed relative py-24 md:py-40 px-6 md:px-16">
+      <div className="absolute inset-0 bg-near-black/90 backdrop-blur-sm"></div>
+      <div className="max-w-7xl mx-auto relative z-10 text-center">
+        <span className="font-mono text-[10px] text-gold tracking-[0.3em] mb-4 block uppercase">CLIENT RESULTS</span>
+        <h2 className="font-sans font-black text-[48px] md:text-[84px] text-off-white leading-[0.95] tracking-tighter mb-20 text-center">
+          The numbers speak first.
         </h2>
         
-        <div className="bg-off-white border p-8 md:p-12 relative group max-w-4xl mx-auto rounded-[2px]" >
-          <span className="absolute top-4 left-6 font-sans font-black text-[100px] text-charcoal/5 leading-none">"</span>
-          <div className="min-h-[160px] flex items-center relative z-10">
-            <p className="font-sans font-light text-[15px] text-warm-gray leading-[1.9] italic">
+        <div className="relative group max-w-4xl mx-auto transition-all duration-700" key={active}>
+          <span className="absolute -top-10 md:-top-16 left-1/2 -translate-x-1/2 font-sans font-black text-[140px] text-glass-border leading-none">"</span>
+          <div className="min-h-[200px] flex items-center justify-center relative z-10 animate-fade-in">
+            <p className="font-sans font-light text-[18px] md:text-[24px] text-off-white leading-[1.8] italic text-center">
               {reviews[active].q}
             </p>
           </div>
-          <div className="mt-8 relative z-10">
-            <div className="font-sans font-semibold text-[13px] text-charcoal">{reviews[active].n}</div>
-            <div className="font-mono text-[10px] text-slate mt-1">{reviews[active].t}</div>
+          <div className="mt-12 relative z-10 animate-fade-in-up">
+            <div className="font-sans font-semibold text-[15px] text-gold mb-2">{reviews[active].n}</div>
+            <div className="font-mono text-[10px] text-warm-gray tracking-widest uppercase">{reviews[active].t}</div>
           </div>
         </div>
         
-        <div className="flex justify-center gap-3 mt-8">
+        <div className="flex justify-center gap-4 mt-16">
           {reviews.map((_, i) => (
-            <button key={i} onClick={() => setActive(i)} className={`w-2 h-2 rounded-full transition-all ${i===active ? 'bg-slate scale-110' : 'bg-mid-gray'}`} aria-label={`Review ${i+1}`} />
+            <button key={i} onClick={() => setActive(i)} className={`w-12 h-1 rounded-none transition-all duration-300 custom-cursor-target ${i===active ? 'bg-gold' : 'bg-mid-gray'}`} aria-label={`Review ${i+1}`} />
           ))}
         </div>
       </div>
@@ -391,41 +515,41 @@ const Testimonials = () => {
 
 const BookingForm = () => {
   return (
-    <section id="quote" className="bg-off-white border-t border-b grid grid-cols-1 md:grid-cols-2">
-      <div className="p-8 md:p-16 lg:p-[96px] border-r border-mid-gray flex flex-col justify-center">
-        <span className="font-mono text-[10px] text-slate tracking-[0.25em] mb-6 block">REQUEST A QUOTE</span>
-        <h2 className="font-sans font-bold text-[32px] md:text-[40px] text-charcoal leading-[1.15] tracking-tight mb-8">
+    <section id="quote" className="bg-[#050505] border-t border-b border-glass-border grid grid-cols-1 lg:grid-cols-2">
+      <div className="p-8 md:p-16 lg:p-[120px_96px] border-r border-glass-border flex flex-col justify-center">
+        <span className="font-mono text-[10px] text-gold tracking-[0.3em] mb-8 block uppercase">REQUEST A QUOTE</span>
+        <h2 className="font-sans font-bold text-[40px] md:text-[56px] text-off-white leading-[1.1] tracking-tight mb-10">
           Let's talk about your project.
         </h2>
         
-        <div className="w-[48px] h-[1px] bg-gold mb-8"></div>
+        <div className="w-[60px] h-[2px] bg-gold mb-10"></div>
         
-        <p className="font-sans font-light text-[15px] text-warm-gray leading-[1.9] mb-12">
+        <p className="font-sans font-light text-[16px] text-light-gray leading-[1.9] mb-12">
           Whether you need executive headshots for 200 employees, product photography for a product launch, or full event coverage — we can scope, quote and schedule within 24 hours. No creative agencies. No middlemen. Direct access to Diane.
         </p>
         
-        <div className="flex flex-col gap-3 font-sans font-light text-[13px] text-warm-gray mb-16">
-          <a href="mailto:hello@framecollective.com" className="hover:text-charcoal transition-colors">hello@framecollective.com</a>
-          <a href="tel:3127409900" className="hover:text-charcoal transition-colors">(312) 740-9900</a>
-          <a href="#" className="hover:text-charcoal transition-colors">@framecollective</a>
+        <div className="flex flex-col gap-5 font-sans font-light text-[14px] text-warm-gray mb-16">
+          <a href="mailto:hello@framecollective.com" className="hover:text-gold transition-colors flex items-center gap-4 custom-cursor-target"><span className="w-8 h-[1px] bg-mid-gray"></span>hello@framecollective.com</a>
+          <a href="tel:3127409900" className="hover:text-gold transition-colors flex items-center gap-4 custom-cursor-target"><span className="w-8 h-[1px] bg-mid-gray"></span>(312) 740-9900</a>
+          <a href="#" className="hover:text-gold transition-colors flex items-center gap-4 custom-cursor-target"><span className="w-8 h-[1px] bg-mid-gray"></span>@framecollective</a>
         </div>
         
-        <div className="font-mono text-[10px] text-slate p-4 border bg-white/50 inline-flex max-w-fit">
-          Response guaranteed within 24 business hours.
+        <div className="font-mono text-[10px] text-warm-gray p-5 border border-glass-border bg-glass-dark inline-flex max-w-fit uppercase tracking-widest">
+           Response guaranteed within 24 business hours.
         </div>
       </div>
       
-      <div className="p-8 md:p-16 lg:p-[96px] bg-white">
-        <form className="flex flex-col gap-8" onSubmit={e=>e.preventDefault()}>
-          <input type="text" placeholder="Full Name" className="w-full bg-transparent border-b border-mid-gray pb-3 font-sans font-light text-[14px] text-charcoal focus:outline-none focus:border-slate transition-colors placeholder:text-warm-gray" />
-          <input type="text" placeholder="Company / Organization" className="w-full bg-transparent border-b border-mid-gray pb-3 font-sans font-light text-[14px] text-charcoal focus:outline-none focus:border-slate transition-colors placeholder:text-warm-gray" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-             <input type="email" placeholder="Email Address" className="w-full bg-transparent border-b border-mid-gray pb-3 font-sans font-light text-[14px] text-charcoal focus:outline-none focus:border-slate transition-colors placeholder:text-warm-gray" />
-             <input type="tel" placeholder="Phone Number" className="w-full bg-transparent border-b border-mid-gray pb-3 font-sans font-light text-[14px] text-charcoal focus:outline-none focus:border-slate transition-colors placeholder:text-warm-gray" />
+      <div className="p-8 md:p-16 lg:p-[120px_96px] bg-near-black">
+        <form className="flex flex-col gap-10" onSubmit={e=>e.preventDefault()}>
+          <input type="text" placeholder="Full Name" className="w-full bg-transparent border-b border-mid-gray pb-4 font-sans font-light text-[15px] text-off-white focus:outline-none focus:border-gold transition-colors placeholder:text-mid-gray custom-cursor-target" />
+          <input type="text" placeholder="Company / Organization" className="w-full bg-transparent border-b border-mid-gray pb-4 font-sans font-light text-[15px] text-off-white focus:outline-none focus:border-gold transition-colors placeholder:text-mid-gray custom-cursor-target" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+             <input type="email" placeholder="Email Address" className="w-full bg-transparent border-b border-mid-gray pb-4 font-sans font-light text-[15px] text-off-white focus:outline-none focus:border-gold transition-colors placeholder:text-mid-gray custom-cursor-target" />
+             <input type="tel" placeholder="Phone Number" className="w-full bg-transparent border-b border-mid-gray pb-4 font-sans font-light text-[15px] text-off-white focus:outline-none focus:border-gold transition-colors placeholder:text-mid-gray custom-cursor-target" />
           </div>
           
-          <select className="w-full bg-transparent border-b border-mid-gray pb-3 font-sans font-light text-[14px] text-charcoal focus:outline-none focus:border-slate transition-colors appearance-none cursor-pointer">
-            <option value="" disabled selected className="text-warm-gray">Project Type</option>
+          <select className="w-full bg-near-black border-b border-mid-gray pb-4 font-sans font-light text-[15px] text-off-white focus:outline-none focus:border-gold transition-colors appearance-none cursor-pointer custom-cursor-target">
+            <option value="" disabled selected className="text-mid-gray">Project Type</option>
             <option value="exec">Executive Portraits</option>
             <option value="product">Product & Brand</option>
             <option value="arch">Architecture & Real Estate</option>
@@ -434,11 +558,11 @@ const BookingForm = () => {
             <option value="unsure">Not Sure</option>
           </select>
           
-          <input type="text" placeholder="Number of Subjects / SKUs / Sq Ft" className="w-full bg-transparent border-b border-mid-gray pb-3 font-sans font-light text-[14px] text-charcoal focus:outline-none focus:border-slate transition-colors placeholder:text-warm-gray" />
+          <input type="text" placeholder="Number of Subjects / SKUs / Sq Ft" className="w-full bg-transparent border-b border-mid-gray pb-4 font-sans font-light text-[15px] text-off-white focus:outline-none focus:border-gold transition-colors placeholder:text-mid-gray custom-cursor-target" />
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <input type="text" placeholder="Preferred Date / Timeline" className="w-full bg-transparent border-b border-mid-gray pb-3 font-sans font-light text-[14px] text-charcoal focus:outline-none focus:border-slate transition-colors placeholder:text-warm-gray" />
-            <select className="w-full bg-transparent border-b border-mid-gray pb-3 font-sans font-light text-[14px] text-charcoal focus:outline-none focus:border-slate transition-colors appearance-none cursor-pointer">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <input type="text" placeholder="Preferred Date / Timeline" className="w-full bg-transparent border-b border-mid-gray pb-4 font-sans font-light text-[15px] text-off-white focus:outline-none focus:border-gold transition-colors placeholder:text-mid-gray custom-cursor-target" />
+            <select className="w-full bg-near-black border-b border-mid-gray pb-4 font-sans font-light text-[15px] text-off-white focus:outline-none focus:border-gold transition-colors appearance-none cursor-pointer custom-cursor-target">
               <option value="" disabled selected>Approximate Budget</option>
               <option value="<1k">Under $1K</option>
               <option value="1-3k">$1K–$3K</option>
@@ -448,19 +572,10 @@ const BookingForm = () => {
             </select>
           </div>
           
-          <textarea rows="4" placeholder="Describe your project, deliverables and any specific requirements" className="w-full bg-transparent border-b border-mid-gray pb-3 font-sans font-light text-[14px] text-charcoal focus:outline-none focus:border-slate transition-colors placeholder:text-warm-gray resize-none"></textarea>
+          <textarea rows="4" placeholder="Describe your project, deliverables and any specific requirements" className="w-full bg-transparent border-b border-mid-gray pb-4 font-sans font-light text-[15px] text-off-white focus:outline-none focus:border-gold transition-colors placeholder:text-mid-gray resize-none custom-cursor-target mt-4"></textarea>
           
-          <select className="w-full bg-transparent border-b border-mid-gray pb-3 font-sans font-light text-[14px] text-charcoal focus:outline-none focus:border-slate transition-colors appearance-none cursor-pointer">
-              <option value="" disabled selected>How did you find us?</option>
-              <option value="google">Google</option>
-              <option value="linkedin">LinkedIn</option>
-              <option value="referral">Referral</option>
-              <option value="directory">Industry Directory</option>
-              <option value="other">Other</option>
-          </select>
-
-          <button type="submit" className="w-full bg-slate hover:bg-slate-mid text-white font-sans font-semibold text-[12px] tracking-[0.2em] h-[52px] rounded-[2px] transition-colors mt-4">
-            SUBMIT REQUEST →
+          <button type="submit" className="w-full bg-gold hover:bg-off-white text-near-black font-sans font-bold text-[13px] tracking-[0.2em] h-[60px] rounded-[2px] transition-all duration-300 mt-8 custom-cursor-target">
+            SUBMIT INQUIRY
           </button>
         </form>
       </div>
@@ -471,55 +586,56 @@ const BookingForm = () => {
 const Footer = () => {
   const isBusinessHours = () => {
     const d = new Date();
-    // Use simple logic, assume server/local time for demo
     const day = d.getDay();
     const hr = d.getHours();
     return (day >= 1 && day <= 5) && (hr >= 9 && hr < 18);
   };
 
   return (
-    <footer className="bg-near-black border-t border-white/5 py-16 px-6 md:px-16">
+    <footer className="bg-[#050505] py-20 px-6 md:px-16">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
-          <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-16 mb-20">
+          <div className="flex flex-col gap-6">
              <div className="flex items-baseline gap-2">
-               <span className="font-sans font-black text-[20px] text-white uppercase tracking-tight">FRAME</span>
-               <span className="font-mono text-[9px] text-white/40 tracking-[0.4em] uppercase">COLLECTIVE</span>
+               <span className="font-sans font-black text-[24px] text-off-white uppercase tracking-tight">FRAME</span>
+               <span className="font-mono text-[10px] text-off-white/40 tracking-[0.4em] uppercase">COLLECTIVE</span>
              </div>
-             <p className="font-sans font-light text-[13px] text-white/40 max-w-[200px]">Imagery that means business.</p>
-             <p className="font-mono text-[9px] text-warm-gray mt-2">APA · ASMP · Licensed & Insured</p>
+             <p className="font-sans font-light text-[14px] text-light-gray/60 max-w-[240px]">Imagery that means business. Delivered with uncompromised standard.</p>
+             <p className="font-mono text-[10px] text-gold mt-2 uppercase tracking-widest">APA · ASMP · Licensed & Insured</p>
           </div>
           
           <div className="flex flex-col gap-4">
-             <div className="grid grid-cols-2 gap-y-4 gap-x-8">
+             <div className="grid grid-cols-2 gap-y-6 gap-x-8">
                {['Work', 'Services', 'About', 'Contact'].map(link => (
-                 <a key={link} href={`#${link.toLowerCase()}`} className="font-sans font-light text-[13px] text-white/50 hover:text-white transition-colors">{link}</a>
+                 <a key={link} href={`#${link.toLowerCase()}`} className="font-sans font-light text-[14px] text-warm-gray hover:text-gold transition-colors custom-cursor-target">{link}</a>
                ))}
-               <a href="#privacy" className="font-sans font-light text-[13px] text-white/50 hover:text-white transition-colors">Privacy</a>
-               <a href="#terms" className="font-sans font-light text-[13px] text-white/50 hover:text-white transition-colors">Terms</a>
+               <a href="#privacy" className="font-sans font-light text-[14px] text-warm-gray hover:text-gold transition-colors custom-cursor-target">Privacy</a>
+               <a href="#terms" className="font-sans font-light text-[14px] text-warm-gray hover:text-gold transition-colors custom-cursor-target">Terms</a>
              </div>
           </div>
           
-          <div className="flex flex-col gap-4">
-             <a href="mailto:hello@framecollective.com" className="font-sans font-light text-[13px] text-white/50 hover:text-white transition-colors">hello@framecollective.com</a>
-             <a href="tel:3127409900" className="font-sans font-light text-[13px] text-white/50 hover:text-white transition-colors">(312) 740-9900</a>
-             <div className="font-mono text-[10px] text-warm-gray mt-2 flex items-center gap-3">
-               <span className={`w-[6px] h-[6px] rounded-full inline-block ${isBusinessHours() ? 'bg-green-500 animate-pulse' : 'bg-warm-gray'}`}></span>
+          <div className="flex flex-col gap-5">
+             <a href="mailto:hello@framecollective.com" className="font-sans font-light text-[14px] text-warm-gray hover:text-gold transition-colors custom-cursor-target border-b border-transparent hover:border-gold w-fit pb-1">hello@framecollective.com</a>
+             <a href="tel:3127409900" className="font-sans font-light text-[14px] text-warm-gray hover:text-gold transition-colors custom-cursor-target border-b border-transparent hover:border-gold w-fit pb-1">(312) 740-9900</a>
+             <div className="font-mono text-[10px] text-warm-gray/70 mt-4 flex items-center gap-3 tracking-widest uppercase">
+               <span className={`w-[6px] h-[6px] rounded-full inline-block ${isBusinessHours() ? 'bg-gold animate-pulse' : 'bg-mid-gray'}`}></span>
                <span>Mon–Fri, 9AM–6PM CT</span>
              </div>
           </div>
         </div>
         
-        <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="font-mono text-[10px] text-white/20 text-center md:text-left">
-            &copy; {new Date().getFullYear()} Frame Collective · Chicago, IL · hello@framecollective.com
+        <div className="border-t border-glass-border pt-10 flex flex-col items-start gap-6">
+          <div className="w-full flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="font-mono text-[10px] text-warm-gray/50 text-center md:text-left tracking-widest uppercase">
+              &copy; {new Date().getFullYear()} Frame Collective · Chicago, IL
+            </div>
+            <div className="font-mono text-[10px] text-gold/70 tracking-[0.2em] flex items-center gap-3 uppercase">
+              <span className={`w-[6px] h-[6px] rounded-full inline-block ${isBusinessHours() ? 'bg-gold animate-pulse' : 'bg-mid-gray'}`}></span>
+              ACCEPTING NEW CLIENTS
+            </div>
           </div>
-          <div className="font-mono text-[9px] text-white/15 italic text-center md:text-right">
-            This is a demo page created for portfolio purposes.
-          </div>
-          <div className="font-mono text-[10px] text-white/40 tracking-[0.1em] flex items-center gap-2">
-            <span className={`w-[6px] h-[6px] rounded-full inline-block ${isBusinessHours() ? 'bg-green-500 animate-pulse' : 'bg-warm-gray'}`}></span>
-            ACCEPTING NEW CLIENTS
+          <div className="font-mono text-[9px] text-warm-gray/30 italic text-center md:text-left w-full">
+            This is a demo page created by Antigravity for portfolio purposes.
           </div>
         </div>
       </div>
@@ -548,8 +664,8 @@ const FixedComponents = () => {
 
   return (
     <>
-      <div className="fixed top-0 left-0 h-[3px] bg-slate z-[100] w-0" id="progress"></div>
-      <a href="#quote" className="md:hidden fixed bottom-0 left-0 w-full bg-slate text-white text-center h-[52px] leading-[52px] font-sans font-semibold text-[12px] tracking-[0.15em] z-50">
+      <div className="fixed top-0 left-0 h-[2px] bg-gold z-[100] w-0" id="progress"></div>
+      <a href="#quote" className="md:hidden fixed bottom-0 left-0 w-full bg-gold text-near-black text-center h-[56px] leading-[56px] font-sans font-bold text-[13px] tracking-[0.2em] z-50 uppercase">
         GET A QUOTE
       </a>
     </>
@@ -559,13 +675,13 @@ const FixedComponents = () => {
 export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Smooth scroll logic (simplified for React)
   useEffect(() => {
     document.documentElement.style.scrollBehavior = 'smooth';
   }, []);
 
   return (
-    <div className="font-sans antialiased text-charcoal bg-white">
+    <div className="font-sans antialiased text-off-white bg-near-black cursor-none">
+      <CustomCursor />
       <FixedComponents />
       <Navbar mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} />
       <Hero />
